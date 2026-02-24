@@ -35,7 +35,7 @@ function draw() {
 
 function drawIntro() {
   sansX = width / 2;
-  drawSans(sansX, sansY, spiteScale);
+  drawSans(sansX, sansY, spiteScale * 25);
   
   stroke("white"); 
   strokeWeight(baseSize / 50);

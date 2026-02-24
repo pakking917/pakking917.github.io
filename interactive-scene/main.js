@@ -1,0 +1,126 @@
+let sansX;
+let sansY;
+let heartX;
+let heartY;
+let spiteScale;
+let baseSize;
+let gameState = "intro";
+let currentLevel = 1;
+let playerMaxHP = 92;
+let playerHP = playerMaxHP;
+
+
+let t = 0;
+
+function setup() {
+  baseSize = Math.min(windowWidth / 4, windowWidth / 3)
+  createCanvas(baseSize * 4, baseSize * 3);
+  sansX = width / 2;
+  sansY = height / 4;
+  heartX = width / 2;
+  heartY = height * 7 / 10;
+  spiteScale = baseSize / 100 / 2.5
+}
+
+function draw() {
+  background(0);
+  if (gameState === "intro") drawIntro();
+  else if (gameState === "battle") drawBattle();
+  else if (gameState === "transition") drawTransition();
+  else if (gameState === "win") drawWin();
+  else if (gameState === "gameover") drawGameOver();
+}
+
+
+
+function drawIntro() {
+  sansX = width / 2;
+  drawSans(sansX, sansY, spiteScale);
+  
+  stroke("white"); 
+  strokeWeight(baseSize / 50);
+  fill("black");
+  rect(width / 10, height / 2 , width * 4 / 5, height * 4 / 10)
+  
+  
+  console.log(width, height, sansX, sansY, heartX, heartY)
+  
+  drawHeart(heartX, heartY, spiteScale);
+}
+
+
+
+
+
+
+function drawSans(x, y, size) {
+  push();
+  translate(x, y);
+  scale(size);
+
+  // Style settings
+  stroke(0);
+  strokeWeight(2);
+  rectMode(CENTER);
+
+  // Body
+  fill(30, 144, 255);
+  rect(0, 40, 80, 60, 10);
+  fill(255);
+  ellipse(0, 20, 70, 25);
+
+  // Skull
+  fill(255);
+  ellipse(0, -10, 100, 85);
+
+  // Eyes
+  fill(0);
+  ellipse(-22, -15, 20, 25);
+  ellipse(22, -15, 20, 25);
+
+  // Pupil
+  fill(132, 255, 242);
+  ellipse(-22, -15, 15, 20);
+  ellipse(22, -15, 15, 20);
+  fill(0);
+  ellipse(-22, -15, 5, 5);
+  ellipse(22, -15, 5, 5);
+
+  // Nose
+  fill(0);
+  triangle(0, -2, -5, 9, 5, 9);
+
+  // Mouth
+  noFill();
+  arc(0, 15, 60, 30, 0, PI);
+  for (let i = -20; i <= 20; i += 10) {
+    line(i, 15, i, 30);
+  }
+  line(-30, 15, 30, 15);
+
+  pop();
+}
+
+function drawHeart(x, y, size) {
+  push();
+  translate(x, y);
+  scale(size);
+
+  // Modify "pixels"
+  noStroke();
+  fill(255, 0, 0);
+
+  let p = 3 // pixel size
+
+  // Draw heart with pixel blocks
+  rect(-2 * p, -3 * p, 2 * p, p);
+  rect(1 * p, -3 * p, 2 * p, p);
+
+  rect(-3 * p, -2 * p, 7 * p, 3 * p);
+
+  rect(-2 * p, 1 * p, 5 * p, p);
+  rect(-1 * p, 2 * p, 3 * p, p);
+  rect(0, 3 * p, p, p);
+
+  pop();
+}

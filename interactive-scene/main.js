@@ -1,20 +1,34 @@
-// Project Title
-// Your Name
-// Date
+// Interactive Scene Assignemnt
+// Pak King Lee
+// Feb 9, 2026
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// - Resizing window
+// - Local storage for death count
 
 
-let sansX, sansY;
-let heartX, heartY;
+// Game environ. setup
+let gameState = "intro";
+let box = {};
 let spiteScale;
 let baseSize;
-let gameState = "intro";
+
+// Player and sans setup
+let sansX, sansY;
+let heartX, heartY;
 let currentLevel = 1;
-let playerMaxHP = 92;
+const playerMaxHP = 92;
 let playerHP = playerMaxHP;
 let heartSpeed;
+
+// Dialogue
+let dialogueLines = [];
+let dialogueIndex = 0;
+let charIndex     = 0;
+let typeTimer     = 0;
+const TYPE_SPEED  = 2; // frames per character
+let dialogueDone  = false;
+let dialoguePhase = "pre"; // pre for pre battle and post for post battle
 
 function setup() {
   baseSize = Math.min(windowWidth / 4, windowWidth / 3)

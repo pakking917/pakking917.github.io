@@ -46,11 +46,23 @@ function windowResized() {
   }
 }
 
+function makeBattleBox() {
+  return {
+    x: width  * 0.1,
+    y: height * 0.5,
+    w: width  * 0.8,
+    h: height * 0.38
+  };
+}
+
+
+
+
 
 
 function drawIntro() {
   sansX = width / 2;
-  drawSans(sansX, sansY, spiteScale * 25);
+  drawSans(sansX, sansY, spiteScale);
   
   stroke("white"); 
   strokeWeight(baseSize / 50);

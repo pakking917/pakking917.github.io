@@ -1,16 +1,12 @@
-let sansX;
-let sansY;
-let heartX;
-let heartY;
+let sansX, sansY;
+let heartX, heartY;
 let spiteScale;
 let baseSize;
 let gameState = "intro";
 let currentLevel = 1;
 let playerMaxHP = 92;
 let playerHP = playerMaxHP;
-
-
-let t = 0;
+let heartSpeed;
 
 function setup() {
   baseSize = Math.min(windowWidth / 4, windowWidth / 3)
@@ -29,6 +25,25 @@ function draw() {
   else if (gameState === "transition") drawTransition();
   else if (gameState === "win") drawWin();
   else if (gameState === "gameover") drawGameOver();
+}
+
+
+function calcSizes() {
+  baseSize   = Math.floor(Math.min(windowWidth / 4, windowHeight / 3));
+  heartSpeed = baseSize * 0.03;
+}
+
+function windowResized() {
+  calcSizes();
+  resizeCanvas(baseSize * 4, baseSize * 3);
+  spiteScale = baseSize / 100 / 2.2;
+  sansX = width / 2;
+  sansY = height / 4;
+  box = makeBattleBox();
+  if (gameState !== 'title') {
+    heartX = constrain(heartX, box.x + 8, box.x + box.w - 8);
+    heartY = constrain(heartY, box.y + 8, box.y + box.h - 8);
+  }
 }
 
 

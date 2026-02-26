@@ -77,7 +77,13 @@ function makeBattleBox() {
   };
 }
 
+function getDeaths() { 
+  return parseInt(localStorage.getItem('sansDeaths') || '0'); 
+}
 
+function addDeath()  { 
+  localStorage.setItem('sansDeaths', getDeaths() + 1); 
+}
 
 
 

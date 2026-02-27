@@ -7,7 +7,7 @@
 // - Local storage for death count
 
 
-// Game environ. setup
+// Game env. setup
 let gameState = "intro";
 let box = {};
 let spiteScale;
@@ -57,14 +57,16 @@ function calcSizes() {
 
 function windowResized() {
   calcSizes();
+  let heartPosX = heartX / width
+  let heartPosY = heartY / height
   resizeCanvas(baseSize * 4, baseSize * 3);
   spiteScale = baseSize / 100 / 2.2;
   sansX = width / 2;
   sansY = height / 4;
   box = makeBattleBox();
   if (gameState !== 'title') {
-    heartX = constrain(heartX, box.x + 8, box.x + box.w - 8);
-    heartY = constrain(heartY, box.y + 8, box.y + box.h - 8);
+    heartX = constrain(heartPosX * width, box.x + 8, box.x + box.w - 8);
+    heartY = constrain(heartPosY * height, box.y + 8, box.y + box.h - 8);
   }
 }
 

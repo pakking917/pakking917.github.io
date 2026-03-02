@@ -5,7 +5,7 @@
 // Extra for Experts:
 // - Resizing window
 // - Local storage for death count
-// - Editted html and extra files to better contain level info
+// - Editted html and added extra files to better contain level info
 
 
 // Game env. setup
@@ -13,8 +13,8 @@ let gameState = "intro";
 let box = {};
 let spiteScale;
 let baseSize;
-const LEVELS = [level1, level2, level3, level4, level5];
-let iframes = 0;
+const LEVELS = [level1]; //, level2, level3, level4, level5];
+let iframes = 0; // invincibility frames
 
 
 // Player and sans setup
@@ -29,9 +29,6 @@ let heartSpeed;
 // Dialogue
 let dialogueLines = [];
 let dialogueIndex = 0;
-let charIndex     = 0;
-let typeTimer     = 0;
-const TYPE_SPEED  = 2; // frames per character
 let dialogueDone  = false;
 let dialoguePhase = "pre"; // pre for pre battle and post for post battle
 
@@ -116,7 +113,6 @@ function drawIntro() {
   rect(width / 10, height / 2 , width * 4 / 5, height * 4 / 10)
   
   
-  console.log(width, height, sansX, sansY, heartX, heartY) //test
   
   drawHeart(heartX, heartY, spiteScale);
   updateHeart();
@@ -140,12 +136,71 @@ function updateHeart() {
 
   // Normalise diagonal speed
   if (heartVX !== 0 && heartVY !== 0) {
-    heartVX *= 0.707; heartVY *= 0.707; 
+    heartVX *= 1/Math.sqrt(2); heartVY *= 1/Math.sqrt(2); 
   }
 
   heartX = constrain(heartX + heartVX, box.x + 8, box.x + box.w - 8);
   heartY = constrain(heartY + heartVY, box.y + 16, box.y + box.h);
 }
+
+
+function mousePressed() {
+    if (gameState === 'title') {
+    gameState = 'intro';
+    currentLevel = 0;
+    playerHP = playerMaxHP;
+    startDialogue(0);
+
+  } 
+  else if (gameState === 'intro' || gameState === 'levelclear') {
+    if (dialogueIndex >= dialogueLines.length) {
+      if (gameState === 'intro') {
+          // Start the battle
+          box = makeBattleBox();
+          heartX = box.x + box.w / 2;
+          heartY = box.y + box.h / 2;
+          activeAttacks  = [];
+          attackQueue    = [...LEVELS[currentLevel].attacks];
+          levelStartTime = millis();
+          gameState      = 'battle';
+          sansPhase      = 'idle';
+      } 
+
+      else {
+        // Level clear, move to next level or win
+        currentLevel++;
+        if (currentLevel >= LEVELS.length) {
+            playWin();
+            gameState = 'win';
+        } else {
+            gameState = 'intro';
+            startDialogue(0);
+        }
+      }
+
+    } 
+
+    else {
+      dialogueDone = false;
+    }
+
+  } 
+  
+  else if (gameState === 'win' || gameState === 'gameover') {
+    resetPlayer();
+    currentLevel = 0;
+    playerHP     = playerMaxHP;
+    gameState    = 'title';
+  }
+}
+
+
+
+
+
+
+
+
 
 
 

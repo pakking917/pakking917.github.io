@@ -2,14 +2,13 @@ const level1 = {
   label: "level 1",
   dialogues: [
     [
-      "* hey.",
+      "* Press mouse to advance dialouge and use wasd or arrow keys to move heart",
       "* I am Sam from Undertail.",
       "* well...",
       "* let me show you around."
     ],
     [
-      "* I am kinda outta lines.",
-      "* you've got some moves.",
+      "* Yes I know it's pretty much impossible to die from this.",
       "* 67."
     ]
   ],

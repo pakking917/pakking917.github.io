@@ -6,35 +6,38 @@
 // - Resizing window
 // - Local storage for death count
 // - Editted html and added extra files to better contain level info
+// - Classes (BoneH, BoneV): each attack type is its own class with update(), draw(), and hits() methods. This means any number of the same attack can be active simultaneously and is independently tracked in activeAttacks[]
 
 // Variables setup
 // Game env. setup
-let gameState = "intro";
-let box = {};
+let gameState = "intro"; 
+let box = {}; // battle box dimensions
+let baseSize; // Base unit for all sizing
 let spiteScale;
-let baseSize;
-const LEVELS = [level1, level2]; //, level2, level3, level4, level5];
+const LEVELS = [level1, level2]; // Sorry I was gonna add more levels but I ran out of time
 let iframes = 0; // invincibility frames
 
 
-// Player and sans setup
+// Player and sans var.
 let sansX, sansY;
 let heartX, heartY;
-let heartVX = 0, heartVY = 0;
+let heartVX = 0, heartVY = 0; // Heart velocity each frame
 let currentLevel = 0;
 const playerMaxHP = 92;
 let playerHP = playerMaxHP;
-let heartSpeed;
+let heartSpeed; // Recalculated from baseSize on resize
 
-// Attacks
-let activeAttacks = [];
-let attackQueue   = [];
+// Attack System
+let activeAttacks = []; // Attacks currently on screen
+let attackQueue   = []; // Upcoming attacks
 let levelStartTime = 0;
 
 // Dialogue
-let dialogueLines = [];
-let dialogueIndex = 0;
+let dialogueLines = []; // Array of strings for the current dialogue phase
+let dialogueIndex = 0; // Line currently displayed
 let dialogueDone  = false;
+
+// SETUP AND DRAW
 
 function setup() {
   calcSizes();
@@ -43,7 +46,6 @@ function setup() {
   textFont('monospace');
   resetPlayer();
   startDialogue(0);
-  // box = makeBattleBox();
 }
 
 function draw() {
@@ -55,7 +57,7 @@ function draw() {
   else if (gameState === "gameover") drawGameOver();
 }
 
-// Sizing
+// Sizing and Window Resizing
 function calcSizes() {
   baseSize   = Math.max(Math.floor(Math.min(windowWidth / 4, windowHeight / 3)), 100);
   heartSpeed = baseSize * 0.03;
@@ -63,20 +65,20 @@ function calcSizes() {
 
 function windowResized() {
   calcSizes();
-  let heartPosX = heartX / width
+  let heartPosX = heartX / width // Remember where the heart was before resize
   let heartPosY = heartY / height
   resizeCanvas(baseSize * 4, baseSize * 3);
   spiteScale = baseSize / 100 / 2.5;
   sansX = width / 2;
   sansY = height / 4;
   box = makeBattleBox();
-  if (gameState !== "intro") {
+  if (gameState !== "intro") { // Restore new relative position for heart
     heartX = constrain(heartPosX * width + heartVX, box.x + 8, box.x + box.w - 8);
     heartY = constrain(heartPosY * height + heartVY, box.y + 16, box.y + box.h);
   }
 }
 
-function makeBattleBox() {
+function makeBattleBox() { // Makes a batle box object sized as a % of canvas
   return {
     x: width  * 0.1,
     y: height * 0.5,
@@ -85,6 +87,7 @@ function makeBattleBox() {
   };
 }
 
+// Resets all player and attack state when game start or player death
 function resetPlayer() {
   spiteScale = baseSize / 100 / 2.5;
   sansX = width  / 2;
@@ -110,7 +113,7 @@ function addDeath()  {
 }
 
 // Dialogue helpers
-function startDialogue(phase) {
+function startDialogue(phase) { // 0 = intro, 1 = level-clear, conviniently used to call dialouge in the const level1
   dialogueLines = LEVELS[currentLevel].dialogues[phase] || [];
   dialogueIndex = 0;
   dialogueDone  = false;
@@ -123,12 +126,13 @@ function drawDialogueBox() {
   let bw = width  * 0.9;
   let bh = height * 0.2;
 
+  // Box background
   stroke(255);
   strokeWeight(baseSize / 50);
   fill(0);
   rect(bx, by, bw, bh);
 
-  // Show the full current line immediately
+  // Current Line
   fill(255); noStroke();
   textSize(max(10, baseSize * 0.1));
   textAlign(LEFT);
@@ -150,13 +154,15 @@ function drawIntro() {
   sansX = width / 2;
   drawSans(sansX, sansY, spiteScale);
   
+ // Empty battle-box placeholder so the layout matches the battle screen
   stroke(255); 
   strokeWeight(baseSize / 50);
   fill(0);
   rect(width / 10, height / 2 , width * 4 / 5, height * 4 / 10)
   
-  drawDialogueBox();
   drawHUD();
+  drawDialogueBox();
+
   
   drawHeart(heartX, heartY, spiteScale);
   updateHeart();
@@ -207,7 +213,7 @@ function drawBattle() {
   // Level ends when the timer runs out and all attacks are gone
   if (elapsedTime >= LEVELS[currentLevel].duration && activeAttacks.length === 0) {
     gameState = "levelclear";
-    startDialogue(1);
+    startDialogue(1); // Load the post-battle dialogue
   }
 }
 
@@ -220,8 +226,8 @@ function drawLevelClear() {
   fill(0);
   rect(width / 10, height / 2, width * 4 / 5, height * 4 / 10);
 
-  drawDialogueBox();
   drawHUD();
+  drawDialogueBox();
 }
 
 
@@ -271,7 +277,7 @@ function drawHUD() {
   fill(60); noStroke();
   rect(barX + labelW, barY, barW - labelW, barH);
 
-  // Fill — colour shifts yellow → orange → red as HP drops
+  // Colour shifts yellow to orange to red as HP drops
   let pct = playerHP / playerMaxHP;
   if      (pct > 0.5)  fill(255, 220,   0);
   else if (pct > 0.25) fill(255, 140,   0);
@@ -298,6 +304,7 @@ function drawHUD() {
 }
 
 // Spawn attacks
+// Initiates attack based on class type in level data
 function spawnAttack(levelData) {
   if (levelData.type === 'bone_h')  {
     activeAttacks.push(new BoneH(levelData));
@@ -306,11 +313,14 @@ function spawnAttack(levelData) {
     activeAttacks.push(new BoneV(levelData));
   }
 
+  else if (levelData.type === 'blaster') { // Not actually used, if I had time this would've been so cool :(
+    activeAttacks.push(new Blaster(levelData));
+  }
 }
 
 
 // ── Attack: Horizontal Bone ───────────────────────────────────
-// Moves left → right across the battle box at a fixed y position
+// Moves left to right across the battle box at a fixed y position
 class BoneH {
   constructor(data) {
     this.w      = data.w || 60;              // bone length
@@ -322,6 +332,7 @@ class BoneH {
     this.dead   = false;
   }
 
+  // Moves the bone right; marks it dead once it exits the box
   update() {
     this.x += this.speed;
     if (this.x > box.x + box.w + 20) {
@@ -338,7 +349,7 @@ class BoneH {
     pop();
   }
 
-  // rectangle collision check (AABB)
+  // rectangle collision check
   hits(hX, hY) {
     return hX > this.x &&
            hX < this.x + this.w &&
@@ -349,7 +360,7 @@ class BoneH {
 
 
 // ── Attack: Vertical Bone ─────────────────────────────────────
-// Moves top → bottom across the battle box at a fixed x position
+// Moves top to bottom across the battle box at a fixed x position
 class BoneV {
   constructor(data) {
     this.h      = data.h || 60;
@@ -361,6 +372,7 @@ class BoneV {
     this.dead   = false;
   }
 
+  // Moves the bone downward; marks it dead once it exits the box
   update() {
     this.y += this.speed;
     if (this.y > box.y + box.h + 20) {
@@ -377,7 +389,7 @@ class BoneV {
     pop();
   }
 
-  // rectangle collision check (AABB)
+  // rectangle collision check
   hits(hX, hY) {
     return hX > this.x - this.bw / 2 - 3 &&
            hX < this.x + this.bw / 2 + 3 &&
@@ -386,6 +398,7 @@ class BoneV {
   }
 }
 
+// Reads arrow / WASD input and moves the heart, clamped inside the battle box
 function updateHeart() {
   heartVX = 0; heartVY = 0;
   if (keyIsDown(LEFT_ARROW)  || keyIsDown(65)) {
@@ -410,13 +423,13 @@ function updateHeart() {
   heartY = constrain(heartY + heartVY, box.y + 16, box.y + box.h);
 }
 
-
+// Mouse input, mostly deal with dialouge advance
 function mousePressed() {
   if (gameState === 'intro' || gameState === 'levelclear') {
-    dialogueIndex++
+    dialogueIndex++ // Advance dialouge one line at a time
 
     if (dialogueIndex < dialogueLines.length) {
-      dialogueDone = false
+      dialogueDone = false // More lines remain — stay on this screen
     }
     else {
       if (gameState === 'intro') {
@@ -445,7 +458,8 @@ function mousePressed() {
 
     } 
   } 
-  
+
+  // Restart from win or game-over screen
   else if (gameState === 'win' || gameState === 'gameover') {
     resetPlayer();
     currentLevel = 0;
@@ -455,7 +469,9 @@ function mousePressed() {
 }
 
 
+// SPITE DRAWING
 
+// Draws the Sans character sprite at (x, y) using the given scale
 function drawSans(x, y, size) {
   push();
   translate(x, y);
@@ -504,6 +520,7 @@ function drawSans(x, y, size) {
   pop();
 }
 
+// Draws the player's red heart at (x, y) using the given scale
 function drawHeart(x, y, size) {
   push();
   translate(x, y);

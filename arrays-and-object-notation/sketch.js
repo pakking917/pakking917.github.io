@@ -5,6 +5,7 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
+// Poincaré Disk Model???
 
 function setup() {
   createCanvas(windowWidth, windowHeight);

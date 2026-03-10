@@ -5,12 +5,30 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-// Poincaré Disk Model???
+
+
+let radius;
+let center;
+
+let points = [];
+let geodesics = [];
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  baseSize = Math.max(Math.floor(Math.min(windowWidth, windowHeight)), 100);
+  createCanvas(baseSize, baseSize);
+  center = createVector(width / 2, height / 2);
+  radius = baseSize * 0.45;
 }
 
 function draw() {
-  background(220);
+  background(0);
+  drawDisk();
+}
+
+function drawDisk() {
+  circle(center.x, center.y, radius * 2);
+}
+
+function mousePressed() {
+  let p = createVector(mouseX, mouseY);
 }

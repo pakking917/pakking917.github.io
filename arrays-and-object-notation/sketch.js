@@ -23,6 +23,7 @@ function setup() {
 function draw() {
   background(0);
   drawDisk();
+  drawGeodesics();
 }
 
 function drawDisk() {
@@ -30,5 +31,33 @@ function drawDisk() {
 }
 
 function mousePressed() {
-  let p = createVector(mouseX, mouseY);
+  let v = createVector(mouseX, mouseY);
+
+  if (insideDisk(v)) {
+    let p = new Point(v.x, v.y);
+    points.push(p);
+
+    if (points.length >= 2) {
+      let a = points[points.length - 2];
+      let b = points[points.length - 1];
+
+      geodesics.push(new Geodesic(a, b));
+    }
+  }
+  console.log(v);
+ 
+}
+
+function drawGeodesics() {
+  for (let geodesic of geodesics) {
+    geodesic.draw();
+  }
+
+  for (let point of points) {
+    point.draw();
+  }
+}
+
+function insideDisk(vector) {
+  return p5.Vector.dist(vector, center) < radius;
 }

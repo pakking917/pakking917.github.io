@@ -8,9 +8,11 @@
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  let bgb;
-  console.log(bgb);
-  console.log(maxSpan([1,2,3,4,5,6,7,7]));
+  let bgb = 35;
+  while (bgb > 25) {
+    console.log(bgb);
+    bgb--;
+  }
 }
 
 function draw() {

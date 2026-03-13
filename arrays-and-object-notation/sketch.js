@@ -24,6 +24,7 @@ function draw() {
   background(0);
   drawDisk();
   drawGeodesics();
+  drawPoints();
 }
 
 function drawDisk() {
@@ -48,11 +49,21 @@ function mousePressed() {
  
 }
 
+function keyPressed() {
+  if (key === 'c' || key === 'C') {
+    points = [];
+    geodesics = [];
+  }
+}
+
 function drawGeodesics() {
   for (let geodesic of geodesics) {
     geodesic.draw();
   }
+}
 
+
+function drawPoints() {
   for (let point of points) {
     point.draw();
   }
@@ -60,4 +71,31 @@ function drawGeodesics() {
 
 function insideDisk(vector) {
   return p5.Vector.dist(vector, center) < radius;
+}
+
+class Point {
+
+  constructor(x, y) {
+    this.pos = createVector(x,y);
+  }
+
+
+  draw() {
+    fill(255, 200, 120);
+    noStroke();
+    circle(this.pos.x, this.pos.y, 8);
+  }
+}
+
+class Geodesic {
+  constructor(point1, point2) {
+    this.p1 = point1;
+    this.p2 = point2;
+  }
+
+  draw() {
+    fill(50);
+    stroke(255);
+    line(this.p1.x, this.p1.y);
+  }
 }

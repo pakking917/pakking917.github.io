@@ -94,8 +94,38 @@ class Geodesic {
   }
 
   draw() {
-    fill(50);
-    stroke(255);
-    line(this.p1.x, this.p1.y);
+    let a = toDiskCoords(this.p1.pos);
+    let b = toDiskCoords(this.p2.pos);
+
+    stroke(100, 200, 255);
+    strokeWeight(2);
+    noFill();
+
+    let steps = 60;
+
+    beginShape();
+
+    for (let i = 0; i <= steps; i++) {
+      let t = i / steps;
+
+      let x = lerp(a.x, b.x, t);
+      let y = lerp(a.y, b.y, t);
+
+      let warped = this.hyperbolicWarp(x, y);
+
+      let screen = fromDiskCoords(warped);
+
+      vertex(screen.x, screen.y);
+    }
+
+    endShape();
+  }
+
+  hyperbolicWarp(x, y) {
+    let r2 = x * x + y * y;
+
+    let factor = 1 / (1 - r2 * 0.8);
+
+    return createVector(x * factor, y * factor);
   }
 }

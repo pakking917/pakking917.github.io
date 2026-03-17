@@ -102,6 +102,7 @@ class Geodesic {
     strokeWeight(2);
     noFill();
 
+    const STEPS = 60;
 
     let arc = this.getOrthogonalCircle(this.dP1, this.dP2);
     if (!arc) return;
@@ -115,9 +116,11 @@ class Geodesic {
 
     beginShape();
 
-      let warped = this.hyperbolicWarp(x, y);
     for (let i = 0; i <= STEPS; i++) {
+      let a  = a1 + da * (i / STEPS);
 
+      let dx = ox + cos(a) * oR;
+      let dy = oy + sin(a) * oR;
 
       if (dist(dx, dy, 0, 0) <= 1.005) vertex(dx * radius + center.x, dy * radius + center.y);
     }
@@ -125,11 +128,21 @@ class Geodesic {
     endShape();
   }
 
-  hyperbolicWarp(x, y) {
-    let r2 = x * x + y * y;
+  getOrthogonalCircle(d1, d2) {
+    return this.circumcircle(d1, d2, this.invertPoint(d1));
+  }
 
-    let factor = 1 / (1 - r2 * 0.8);
+  invertPoint(p) {
+    let lenSq = p.x * p.x + p.y * p.y;
+    if (lenSq < 1/10000) return { x: 0, y: 0 };
+    return { x: p.x / lenSq, y: p.y / lenSq };
+  }
 
-    return createVector(x * factor, y * factor);
+  circumcircle(a, b, c) {
+    let D = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+    if (abs(D) < 1/10000) return null;
+    let ux = ((a.x*a.x + a.y*a.y) * (b.y - c.y) + (b.x*b.x + b.y*b.y) * (c.y - a.y) + (c.x*c.x + c.y*c.y) * (a.y - b.y)) / D;
+    let uy = ((a.x*a.x + a.y*a.y) * (c.x - b.x) + (b.x*b.x + b.y*b.y) * (a.x - c.x) + (c.x*c.x + c.y*c.y) * (b.x - a.x)) / D;
+    return { ox: ux, oy: uy, or: dist(ux, uy, a.x, a.y) };
   }
 }

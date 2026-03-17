@@ -10,8 +10,8 @@
 let radius;
 let center;
 
-let points = [];
-let geodesics = [];
+let points = []; // arrays of point objects
+let geodesics = []; // arrays of geodesics, lines that connect the dots
 
 function setup() {
   baseSize = Math.max(Math.floor(Math.min(windowWidth, windowHeight)), 100);
@@ -39,8 +39,12 @@ function mousePressed() {
     y: mouseY
   };
 
-  if (points.length >= 3) return;
-  if (!insideDisk(vector)) return;
+  if (points.length >= 3) {
+    return;
+  }
+  if (!insideDisk(vector)) {
+    return;
+  }
 
   points.push(vector);
 
@@ -105,14 +109,20 @@ class Geodesic {
     const STEPS = 60;
 
     let arc = this.getOrthogonalCircle(this.dP1, this.dP2);
-    if (!arc) return;
+    if (!arc) {
+      return;
+    }
 
     let { ox, oy, or: oR } = arc;
     let a1 = atan2(this.dP1.y - oy, this.dP1.x - ox);
     let a2 = atan2(this.dP2.y - oy, this.dP2.x - ox);
     let da = a2 - a1;
-    if (da >  PI) da -= TAU;
-    if (da < -PI) da += TAU;
+    if (da >  PI) {
+      da -= TAU;
+    }
+    if (da < -PI) {
+      da += TAU;
+    }
 
     beginShape();
 
@@ -122,7 +132,9 @@ class Geodesic {
       let dx = ox + cos(a) * oR;
       let dy = oy + sin(a) * oR;
 
-      if (dist(dx, dy, 0, 0) <= 1.005) vertex(dx * radius + center.x, dy * radius + center.y);
+      if (dist(dx, dy, 0, 0) <= 1.005) {
+        vertex(dx * radius + center.x, dy * radius + center.y);
+      }
     }
 
     endShape();
@@ -134,13 +146,17 @@ class Geodesic {
 
   invertPoint(p) {
     let lenSq = p.x * p.x + p.y * p.y;
-    if (lenSq < 1/10000) return { x: 0, y: 0 };
+    if (lenSq < 1/10000) {
+      return { x: 0, y: 0 };
+    }
     return { x: p.x / lenSq, y: p.y / lenSq };
   }
 
   circumcircle(a, b, c) {
     let D = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
-    if (abs(D) < 1/10000) return null;
+    if (abs(D) < 1/10000) {
+      return null;
+    }
     let ux = ((a.x*a.x + a.y*a.y) * (b.y - c.y) + (b.x*b.x + b.y*b.y) * (c.y - a.y) + (c.x*c.x + c.y*c.y) * (a.y - b.y)) / D;
     let uy = ((a.x*a.x + a.y*a.y) * (c.x - b.x) + (b.x*b.x + b.y*b.y) * (a.x - c.x) + (c.x*c.x + c.y*c.y) * (b.x - a.x)) / D;
     return { ox: ux, oy: uy, or: dist(ux, uy, a.x, a.y) };

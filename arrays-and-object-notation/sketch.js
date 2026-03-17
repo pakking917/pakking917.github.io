@@ -63,9 +63,9 @@ function drawGeodesics() {
   }
 }
 
-
 function drawPoints() {
   for (let point of points) {
+    fill(255, 200, 120);
     circle(point.x, point.y, 8);
   }
 }
@@ -74,18 +74,28 @@ function insideDisk(vector) {
   return dist(vector.x, vector.y, center.x, center.y) < radius;
 }
 
+// Convert both ways from disk to unit disk
 
+function toDiskCoords(p) {
+  return { x: (p.x - center.x) / radius, y: (p.y - center.y) / radius };
+}
+
+function toCanvas(d) {
+  return { x: d.x * radius + center.x, y: d.y * radius + center.y };
+}
+
+// Geodesic class
 
 class Geodesic {
   constructor(point1, point2) {
     this.p1 = point1;
     this.p2 = point2;
+    this.dP1 = toDiskCoords(point1); // dP is diskPoint
+    this.dP2 = toDiskCoords(point2);
+
   }
 
   draw() {
-    let a = toDiskCoords(this.p1.pos);
-    let b = toDiskCoords(this.p2.pos);
-
     stroke(100, 200, 255);
     strokeWeight(2);
     noFill();

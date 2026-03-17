@@ -28,6 +28,8 @@ function draw() {
 }
 
 function drawDisk() {
+  noFill();
+  stroke(255);
   circle(center.x, center.y, radius * 2);
 }
 
@@ -43,7 +45,7 @@ function mousePressed() {
   points.push(vector);
 
   for (let i = 0; i < points.length - 1; i++) {
-    geodesics.push(new Geodesic(points[i], p));
+    geodesics.push(new Geodesic(points[i], vector));
   }
 
   console.log(vector);
@@ -102,13 +104,17 @@ class Geodesic {
 
     let steps = 60;
 
+    let arc = this.getOrthogonalCircle(this.dP1, this.dP2);
+    if (!arc) return;
+
+    let { ox, oy, or: oR } = arc;
+    let a1 = atan2(this.dP1.y - oy, this.dP1.x - ox);
+    let a2 = atan2(this.dP2.y - oy, this.dP2.x - ox);
+    let da = a2 - a1;
+    if (da >  PI) da -= TAU;
+    if (da < -PI) da += TAU;
+
     beginShape();
-
-    for (let i = 0; i <= steps; i++) {
-      let t = i / steps;
-
-      let x = lerp(a.x, b.x, t);
-      let y = lerp(a.y, b.y, t);
 
       let warped = this.hyperbolicWarp(x, y);
 

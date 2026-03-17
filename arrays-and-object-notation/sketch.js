@@ -102,7 +102,6 @@ class Geodesic {
     strokeWeight(2);
     noFill();
 
-    let steps = 60;
 
     let arc = this.getOrthogonalCircle(this.dP1, this.dP2);
     if (!arc) return;
@@ -117,10 +116,10 @@ class Geodesic {
     beginShape();
 
       let warped = this.hyperbolicWarp(x, y);
+    for (let i = 0; i <= STEPS; i++) {
 
-      let screen = fromDiskCoords(warped);
 
-      vertex(screen.x, screen.y);
+      if (dist(dx, dy, 0, 0) <= 1.005) vertex(dx * radius + center.x, dy * radius + center.y);
     }
 
     endShape();

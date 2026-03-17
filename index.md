@@ -6,6 +6,7 @@
 - [Les images](03-images)
 - [Les balls](04-ball-array)
 - [Les art](05-art)
+- [Perlin noise](06-perlin-noise)
 
 ## Assignments
 - [Interactive Scene](interactive-scene)

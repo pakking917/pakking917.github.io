@@ -32,20 +32,21 @@ function drawDisk() {
 }
 
 function mousePressed() {
-  let v = createVector(mouseX, mouseY);
+  let vector = {
+    x: mouseX,
+    y: mouseY
+  };
 
-  if (insideDisk(v)) {
-    let p = new Point(v.x, v.y);
-    points.push(p);
+  if (points.length >= 3) return;
+  if (!insideDisk(vector)) return;
 
-    if (points.length >= 2) {
-      let a = points[points.length - 2];
-      let b = points[points.length - 1];
+  points.push(vector);
 
-      geodesics.push(new Geodesic(a, b));
-    }
+  for (let i = 0; i < points.length - 1; i++) {
+    geodesics.push(new Geodesic(points[i], p));
   }
-  console.log(v);
+
+  console.log(vector);
  
 }
 
@@ -65,27 +66,15 @@ function drawGeodesics() {
 
 function drawPoints() {
   for (let point of points) {
-    point.draw();
+    circle(point.x, point.y, 8);
   }
 }
 
 function insideDisk(vector) {
-  return p5.Vector.dist(vector, center) < radius;
+  return dist(vector.x, vector.y, center.x, center.y) < radius;
 }
 
-class Point {
 
-  constructor(x, y) {
-    this.pos = createVector(x,y);
-  }
-
-
-  draw() {
-    fill(255, 200, 120);
-    noStroke();
-    circle(this.pos.x, this.pos.y, 8);
-  }
-}
 
 class Geodesic {
   constructor(point1, point2) {

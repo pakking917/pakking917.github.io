@@ -2,8 +2,12 @@
 // Pak King Lee
 // 2026/3/5
 //
-// Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+/* Extra for Experts:
+- Using a class to represent geodesic lines to bbundle data and functions together
+- Implemented geometry using the Poincare disk model, which required deriving coding formulas that compute arcs orthogonal to the circle
+- I used parametric equations instead of standard functions to draw curved geodesics by sampling points
+- I added a beep sound whenever user successfully creates new point or clear all points, using the p5.sound library
+ */
 
 
 // Poincare Disk setup
@@ -13,11 +17,17 @@ let center;
 let points = []; // arrays of point objects
 let geodesics = []; // arrays of geodesics, lines that connect the dots
 
+let beep; // For sound effect when creating a new point
+
 function setup() {
   baseSize = Math.max(Math.floor(Math.min(windowWidth, windowHeight)), 100);
   createCanvas(baseSize, baseSize);
   center = createVector(width / 2, height / 2);
   radius = baseSize * 0.45;
+
+  beep = new p5.Oscillator('sine'); // create sound oscillator
+  beep.start();
+  beep.amp(0);
 }
 
 function draw() {
@@ -40,16 +50,21 @@ function mousePressed() {
     x: mouseX,
     y: mouseY
   };
-
+  
   if (points.length >= 3) {
     return;
   }
   if (!insideDisk(vector)) {
     return;
   }
-
+  
   points.push(vector);
-
+  
+  userStartAudio();
+  beep.freq(600);
+  beep.amp(0.5, 0.05);
+  beep.amp(0, 0.15);
+  //67
   for (let i = 0; i < points.length - 1; i++) {
     geodesics.push(new Geodesic(points[i], vector));
   }
@@ -60,11 +75,15 @@ function mousePressed() {
 
 function keyPressed() {
   if (key === 'c' || key === 'C') {
+    beep.freq(200); // a hum
+    beep.amp(0.5, 0.05);
+    beep.amp(0, 0.2);
+
     points = []; // clear all points and lines
     geodesics = [];
   }
 }
-// 67
+
 // Draw all geodesic curves and selected points
 function drawGeodesics() {
   for (let geodesic of geodesics) {
@@ -90,7 +109,6 @@ function toDiskCoords(p) {
     y: (p.y - center.y) / radius 
   };
 }
-
 function toCanvas(d) {
   return { 
     x: d.x * radius + center.x, 

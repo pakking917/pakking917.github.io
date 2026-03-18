@@ -33,7 +33,7 @@ function showGrid() {
 }
 
 function mousePressed() {
-  if (theGrid[floor(mouseY / height)* 4][floor(mousex / width) * 4] === 1) {
+  if (theGrid[floor(mouseY / height * 4)][floor(mousex / width * 4)] === 1) {
     theGrid[floor(mouseY / height * 4)][floor(mousex / width * 4)] === 0;
   }
   else {

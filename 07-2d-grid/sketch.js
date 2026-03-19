@@ -1,15 +1,21 @@
 // Grid demo
 
-let theGrid = [[0,0,1,0],
-               [1,0,1,0],
-               [0,1,0,0],
-               [0,1,0,1]];
+// let theGrid = [[0,0,1,0],
+//                [1,0,1,0],
+//                [0,1,0,0],
+//                [0,1,0,1]];
+
+
+let theGrid;
 
 let maxValue;
+const SQUARE_DIMENSION = 10;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   maxValue = min(width, height) / 4;
+
+  theGrid = generateRandomGrid()
 }
 
 
@@ -33,10 +39,28 @@ function showGrid() {
 }
 
 function mousePressed() {
-  if (theGrid[floor(mouseY / height * 4)][floor(mousex / width * 4)] === 1) {
-    theGrid[floor(mouseY / height * 4)][floor(mousex / width * 4)] === 0;
+  let x = floor(mouseX / maxValue);
+  let y = floor(mouseY / maxValue);
+
+  if (theGrid[y][x] === 1) {
+    theGrid[y][x] = 0; 
   }
-  else {
-    theGrid[floor(mouseY / height * 4)][floor(mousex / width * 4)] === 1;
+  else if (theGrid[y][x] === 0) {
+    theGrid[y][x] = 1;
+  }
+}
+
+function generateRandomGrid(cols, rows) {
+  let newGrid = [];
+  for (let y = 0; y < rows; y++){
+    newGrid.push([]);
+    for (let x = 0; x < cols; x ++) {
+      if (Math.random < 0.5) {
+        newGrid[y].push(0);
+      }
+      else {
+        newGrid[y].push(1);
+      }
+    }
   }
 }

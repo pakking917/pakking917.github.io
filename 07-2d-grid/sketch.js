@@ -15,7 +15,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   maxValue = min(width, height) / 4;
 
-  theGrid = generateRandomGrid()
+  theGrid = generateRandomGrid();
 }
 
 

@@ -12,3 +12,5 @@
 
 ## Assignments
 - [Interactive Scene](interactive-scene)
+- [Arrays and Object Notation](arrays-and-object-notation)
+- [Grid Game](grid-game)

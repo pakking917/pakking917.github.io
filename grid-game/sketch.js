@@ -10,6 +10,7 @@ let currentState = STATE.MENU;
 
 let unlockedLevels = 1;
 
+// levels initialization
 const LEVELS = [level1, level2];
 let currentLevel = 0;
 let mapData = [];
@@ -26,4 +27,8 @@ function setup() {
 
 function draw() {
   background(220);
+}
+
+function loadProgress() {
+  let data = localStorage.getItem("skibidiToilet");
 }

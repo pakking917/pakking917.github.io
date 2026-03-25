@@ -6,6 +6,7 @@
 // - describe what you did to take this project "above and beyond"
 
 const STATE = {MENU: 0, HELP: 1, LEVEL_SELECT: 2, PLAY: 3};
+const TILE_TYPE = {WALL: 0, FLOOR: 1, BOX: 2, GOAL: 3, VOID: 4};
 let currentState = STATE.MENU;
 
 let unlockedLevels = 1;
@@ -14,8 +15,12 @@ let unlockedLevels = 1;
 const LEVELS = [level1, level2];
 let currentLevel = 0;
 let mapData = [];
+let cols;
+let rows;
 let boxes = [];
 let players = [];
+
+
 let moves = 0;
 let tileSize;
 let gridOffsetX = 0;
@@ -47,8 +52,8 @@ function loadLevel(levelIndex) {
   players = [{ x: lvl.playerStartingPosition[0][0], y: lvl.playerStartingPosition[0][1] }, 
              { x: lvl.playerStartingPosition[1][0], y: lvl.playerStartingPosition[1][1] }];
 
-  let rows = level.map.length;
-  let cols = level.map[0].length;          
+  rows = level.map.length;
+  cols = level.map[0].length;          
 
   mapData = [];
   for (let y = 0; y < rows; y++) {
@@ -71,3 +76,12 @@ function loadLevel(levelIndex) {
   tileSize = Math.min( (width - 100) / cols);
 }
 
+function drawGame() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      tile = mapData[y][x];
+      
+    }
+  }
+
+}

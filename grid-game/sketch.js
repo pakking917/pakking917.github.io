@@ -29,10 +29,12 @@ let gridOffsetY = 0;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
+  loadLevel(0);
 }
 
 function draw() {
   background(220);
+  drawGame();
 }
 
 function loadProgress() {
@@ -48,9 +50,10 @@ function loadLevel(levelIndex) {
   currentState = STATE.PLAY;
   currentLevel = levelIndex;
 
-  let level = LEVELS[levelIndex - 1];
-  players = [{ x: lvl.playerStartingPosition[0][0], y: lvl.playerStartingPosition[0][1] }, 
-             { x: lvl.playerStartingPosition[1][0], y: lvl.playerStartingPosition[1][1] }];
+  let level = LEVELS[levelIndex];
+  boxes = [];
+  players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
+             { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
 
   rows = level.map.length;
   cols = level.map[0].length;          
@@ -73,15 +76,43 @@ function loadLevel(levelIndex) {
     mapData.push(row);
   }
 
-  tileSize = Math.min( (width - 100) / cols);
+  tileSize = Math.min( (width - 100) / cols, (height - 100) / rows);
 }
 
 function drawGame() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       tile = mapData[y][x];
-      
+      let px = gridOffsetX + x * tileSize;
+      let py = gridOffsetY + y * tileSize;
+
+      stroke(50);
+      if (tile === 0) {
+        fill(80);
+      } // Wall
+      else if (tile === 1) {
+        fill(200);
+      } // Floor
+      else if (tile === 3) {
+        fill(255, 255, 0);
+      } // Goal
+      else if (tile === 4) {
+        fill(0);
+      } // Void
+
+
+      rect(px, py, tileSize, tileSize);
+
     }
   }
 
+}
+
+
+
+
+function keyPressed() {
+  if (key === "r") {
+    loadLevel(1);
+  } 
 }

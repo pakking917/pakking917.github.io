@@ -106,6 +106,25 @@ function drawGame() {
     }
   }
 
+  fill(139, 69, 19);
+  for (let b of boxes) {
+    rect(gridOffsetX + b.x * tileSize + 2, gridOffsetY + b.y * tileSize + 2, tileSize - 4, tileSize - 4);
+  }
+
+  // Draw Players
+  let colors = [color(0, 255, 255), color(255, 0, 255)];  
+  for (let i = 0; i < players.length; i++) {
+    fill(colors[i]);
+    circle(gridOffsetX + players[i].x * tileSize + tileSize / 2, gridOffsetY + players[i].y * tileSize + tileSize / 2, tileSize * 0.8);
+  }
+
+}
+
+
+function attemptMove(x, y) {
+  player0 = players[0];
+  player1 = players[1];
+  
 }
 
 

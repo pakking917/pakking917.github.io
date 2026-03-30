@@ -124,10 +124,18 @@ function drawGame() {
 function attemptMove(x, y) {
   player0 = players[0];
   player1 = players[1];
+
+  let moved = false;
   
 }
 
+function ifBlocked(objectiveX, objectiveY) {
+  return mapData[objectiveY][objectiveX] === TILE_TYPE.WALL;
+}
 
+function ifVoid(objectiveX, objectiveY) {
+  return mapData[objectiveY][objectiveX] === TILE_TYPE.VOID;
+}
 
 
 function keyPressed() {

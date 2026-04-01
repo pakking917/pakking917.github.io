@@ -129,6 +129,35 @@ function attemptMove(x, y) {
   
 }
 
+function getPushChain (px, py, dx, dy) {
+  let chain = { blocked: false, boxes: [] };
+  let cx = px + dx;
+  let cy = py + dy;
+
+  if (isOutOfBounds(cx, cy)) {
+    chain.blocked = true;
+    return chain;
+  }
+
+  let box = getBoxAt(cx, cy);
+  while (box) {
+    chain.boxes.push(box);
+    cx += dx;
+    cy += dy;
+    if (isOutOfBounds(cx, cy)) {
+      chain.blocked = true;
+      return chain;
+    }
+    box = getBoxAt(cx, cy);
+  }
+
+  // The tile after the final box (or the player if no boxes)
+  if (mapData[cy][cx] === 0) {
+    chain.blocked = true; // Blocked by wall
+  }
+  return chain;
+}
+
 function ifBlocked(objectiveX, objectiveY) {
   return mapData[objectiveY][objectiveX] === TILE_TYPE.WALL;
 }
@@ -137,6 +166,13 @@ function ifVoid(objectiveX, objectiveY) {
   return mapData[objectiveY][objectiveX] === TILE_TYPE.VOID;
 }
 
+function getBoxAt(x, y) { 
+// 
+}
+
+function isOutOfBounds(x, y) {
+  return y < 0 || y >= rows || x < 0 || x >= cols;
+}
 
 function keyPressed() {
   if (key === "r") {

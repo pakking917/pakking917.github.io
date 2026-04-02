@@ -125,34 +125,70 @@ function attemptMove(x, y) {
   player0 = players[0];
   player1 = players[1];
 
+  let c0 = getPushChain(player0.x, player0.y, dx, dy);
+  let c1 = getPushChain(player1.x, player1.y, dx, dy);
+
+  let tile0 = c0.blocked ? { x: player0.x, y: player0.y } : { x: player0.x + dx, y: player0.y + dy };
+  let tile1 = c1.blocked ? { x: player1.x, y: player1.y } : { x: player1.x + dx, y: player1.y + dy };
+
+  // Rule: Players cannot attempt to occupy the same tile
+  if (tile0.x === tile1.x && tile0.y === tile1.y) {
+    return;
+  }
+
+  // Handle cross-blocking (One player blocked, other moves into them)
+  if (tile0.x === player1.x && tile0.y === player1.y && c1.blocked) {
+    tile0 = { x: player0.x, y: player0.y };
+  }
+  if (tile1.x === player0.x && tile1.y === player0.y && c0.blocked) {
+    tile1 = { x: player1.x, y: player1.y };
+  }
+
   let moved = false;
-  
+  if (tile0.x !== player0.x || tile0.y !== player0.y) {
+    player0.x = tile0.x; player0.y = tile0.y;
+    moved = true;
+    for (let box of c0.boxes) { 
+      box.x += dx; box.y += dy; 
+    }
+  }
+  if (tile1.x !== player1.x || tile1.y !== player1.y) {
+    player1.x = tile1.x; player1.y = tile1.y;
+    moved = true;
+    for (let box of c1.boxes) { 
+      box.x += dx; box.y += dy; 
+    }
+  }
+
+  if (moved) {
+    moves++;
+  }
 }
 
-function getPushChain (px, py, dx, dy) {
+function getPushChain (oldX, oldY, dX, dY) {
   let chain = { blocked: false, boxes: [] };
-  let cx = px + dx;
-  let cy = py + dy;
+  let newX = oldX + dX;
+  let newY = oldY + dY;
 
-  if (isOutOfBounds(cx, cy)) {
+  if (isOutOfBounds(newX, newY)) {
     chain.blocked = true;
     return chain;
   }
 
-  let box = getBoxAt(cx, cy);
+  let box = getBoxAt(newX, newY);
   while (box) {
     chain.boxes.push(box);
-    cx += dx;
-    cy += dy;
-    if (isOutOfBounds(cx, cy)) {
+    newX += dX;
+    newY += dY;
+    if (isOutOfBounds(newX, newY)) {
       chain.blocked = true;
       return chain;
     }
-    box = getBoxAt(cx, cy);
+    box = getBoxAt(newX, newY);
   }
 
   // The tile after the final box (or the player if no boxes)
-  if (mapData[cy][cx] === 0) {
+  if (mapData[newY][newX] === 0) {
     chain.blocked = true; // Blocked by wall
   }
   return chain;
@@ -167,7 +203,7 @@ function ifVoid(objectiveX, objectiveY) {
 }
 
 function getBoxAt(x, y) { 
-// 
+  return mapData.find(box => box.x === x && box.y === y);
 }
 
 function isOutOfBounds(x, y) {

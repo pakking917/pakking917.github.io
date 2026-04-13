@@ -195,7 +195,7 @@ function ifVoid(objectiveX, objectiveY) {
 }
 
 function getBoxAt(x, y) { 
-  return mapData.find(box => box.x === x && box.y === y);
+  return boxes.find(box => box.x === x && box.y === y);
 }
 
 function isOutOfBounds(x, y) {

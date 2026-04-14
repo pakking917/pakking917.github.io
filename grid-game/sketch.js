@@ -29,12 +29,25 @@ let gridOffsetY = 0;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
-  loadLevel(0);
+  // loadLevel(0);
+  currentState = STATE.HELP;
+
 }
 
 function draw() {
   background(220);
-  drawGame();
+  if (currentState === STATE.MENU) {
+    drawMenu();
+  }
+  else if (currentState === STATE.HELP) {
+    drawHelp();
+  }
+  else if (currentState === STATE.LEVEL_SELECT) {
+    drawLevelSelect();
+  }
+  else if (currentState === STATE.PLAY) {
+    drawGame();
+  }
 }
 
 
@@ -69,6 +82,44 @@ function loadLevel(levelIndex) {
   }
   
   tileSize = Math.min( (width - 100) / cols, (height - 100) / rows);
+}
+
+// ------------------------ Rendering ------------------------
+
+function drawButton(txt, x, y, w, h, colour = color(150)) {
+  rectMode(CENTER);
+  fill(colour);
+  stroke(255);
+  rect(x, y, w, h);
+  fill(0);
+  noStroke();
+  textSize(20);
+  textFont("Courier New");
+  text(txt, x, y);
+}
+
+function drawMenu() {
+  textAlign(CENTER, CENTER);
+  fill(255);
+  textSize(40);
+  text("Unlimited Games but No Games", width / 2, height / 3);
+
+  drawButton("Play", width / 2, height / 2, 300, 50);
+  drawButton("Help", width / 2, height / 2 + 70, 300, 50);
+  drawButton("Unlock All Levels", width / 2, height / 2 + 140, 300, 50);
+}
+
+function drawHelp() {
+  textAlign(CENTER, CENTER);
+  fill(255);
+  textSize(30);
+  text("HOW TO PLAY", width / 2, height / 5);
+
+  textSize(16);
+  let instructions = "";
+  
+  text(instructions, width / 2, height / 2);
+  drawButton("Back", width / 2, height - 100, 200, 50);
 }
 
 function drawGame() {
@@ -206,17 +257,20 @@ function keyPressed() {
   if (key === "r" || key === "R") {
     loadLevel(1);
   }
-  if (key === "w" || key === "W") {
+  if (key === "w" || key === "W" || keyCode === UP_ARROW) {
     attemptMove(0, -1);
   }
-  if (key === "a" || key === "A") {
+  if (key === "a" || key === "A" || keyCode === LEFT_ARROW) {
     attemptMove(-1, 0);
   }
-  if (key === "s" || key === "S") {
+  if (key === "s" || key === "S" || keyCode === DOWN_ARROW) {
     attemptMove(0, 1);
   }
-  if (key === "d" || key === "D") {
+  if (key === "d" || key === "D" || keyCode === RIGHT_ARROW) {
     attemptMove(1, 0);
+  }
+  if (keyCode === ESCAPE) {
+    currentState === STATE.MENU;
   }
 }
 
@@ -227,7 +281,7 @@ function loadProgress() {
   let data = localStorage.getItem("girdGameProgress");
   if (data) {
     let parsed = JSON.parse(data);
-    unlockedLevels = parsed.unlockedLevels || 1;
+    unlockedLevels = Math.max(parsed.unlockedLevels, unlockedLevels);
     starLevels = parsed.starLevels || [];
   }
 }

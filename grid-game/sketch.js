@@ -10,9 +10,10 @@ const TILE_TYPE = {WALL: 0, FLOOR: 1, BOX: 2, GOAL: 3, VOID: 4};
 let currentState = STATE.MENU;
 
 let unlockedLevels = 1;
+let starLevels = [];
 
 // levels initialization
-const LEVELS = [level1, level2];
+const levels = [level1, level2];
 let currentLevel = 0;
 let mapData = [];
 let cols;
@@ -26,11 +27,14 @@ let tileSize;
 let gridOffsetX = 0;
 let gridOffsetY = 0;
 
+let currentPage = 0;
+const LEVELS_PER_PAGE = 10;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
   // loadLevel(0);
-  currentState = STATE.HELP;
+  currentState = STATE.LEVEL_SELECT;
 
 }
 
@@ -58,7 +62,7 @@ function loadLevel(levelIndex) {
   let level = LEVELS[levelIndex];
   boxes = [];
   players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
-  { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
+             { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
   
   rows = level.map.length;
   cols = level.map[0].length;          
@@ -120,6 +124,39 @@ function drawHelp() {
   
   text(instructions, width / 2, height / 2);
   drawButton("Back", width / 2, height - 100, 200, 50);
+}
+
+function drawLevelSelect() {
+  textAlign(CENTER, CENTER);
+  fill(255);
+  textSize(30);
+  text("SELECT LEVEL", width / 2, 50);
+
+  let startIdx = currentPage * LEVELS_PER_PAGE;
+  let endIdx = min(startIdx + LEVELS_PER_PAGE, levels.length);
+
+  for (let i = startIdx; i < endIdx; i++) {
+    let x = width / 2 - 150 + (i - startIdx) % 2 * 300;
+    let y = 150 + Math.floor((i - startIdx) / 2) * 80;
+    
+    let isUnlocked = i < unlockedLevels;
+    let hasStar = starLevels[i];
+
+    drawButton(
+      isUnlocked ? `${levels[i].label} ${hasStar ? '⭐' : ''}` : "Locked", 
+      x, y, 250, 60, 
+      isUnlocked ? color(100, 200, 100) : color(100)
+    );
+  }
+
+  // Pagination buttons
+  if (currentPage > 0) {
+    drawButton("Prev Page", width / 2 - 150, height - 80, 150, 40);
+  }
+  if (endIdx < levels.length) {
+    drawButton("Next Page", width / 2 + 150, height - 80, 150, 40);
+  }
+  drawButton("Back to Menu", width / 2, height - 80, 150, 40, color(200, 100, 100));
 }
 
 function drawGame() {

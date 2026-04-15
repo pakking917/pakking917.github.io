@@ -292,9 +292,9 @@ function getPushChain (oldX, oldY, dX, dY) {
   if (mapData[newY][newX] === TILE_TYPE.WALL) {
     chain.blocked = true; // Blocked by wall
   }
-  if (players.find(player => player.x === newX && player.y === newY)) {
-    chain.blocked = true; // Blocked by the other character
-  }
+  // if (players.find(player => player.x === newX && player.y === newY)) {
+  //   chain.blocked = true; // Blocked by the other character
+  // }
 
   return chain;
 }

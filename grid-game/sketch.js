@@ -13,7 +13,7 @@ let unlockedLevels = 1;
 let starLevels = [];
 
 // levels initialization
-const LEVELS = [level1, level2];
+const LEVELS = [level1, level2, level3, level4, level5, level6, level7, level8, level9, level10, level11];
 let currentLevelIdx = 0;
 let mapData = [];
 let cols;
@@ -262,6 +262,7 @@ function attemptMove(dx, dy) {
   
   if (moved) {
     moves++;
+    checkPostMove();
   }
 }
 
@@ -292,6 +293,37 @@ function getPushChain (oldX, oldY, dX, dY) {
     chain.blocked = true; // Blocked by wall
   }
   return chain;
+}
+
+function checkPostMove() {
+  // Destroy boxes in the void
+  boxes = boxes.filter(b => mapData[b.y][b.x] !== TILE_TYPE.VOID);
+
+  // Check if players fell in the void
+  if (mapData[players[0].y][players[0].x] === TILE_TYPE.VOID || mapData[players[1].y][players[1].x] === TILE_TYPE.VOID) {
+    alert("You fell into the void!");
+    loadLevel(currentLevelIdx);
+    return;
+  }
+
+  // Check Win Condition (both on goals)
+  if (mapData[players[0].y][players[0].x] === TILE_TYPE.GOAL && mapData[players[1].y][players[1].x] === TILE_TYPE.GOAL) {
+    let isOptimal = moves <= LEVELS[currentLevelIdx].optimalMoves;
+    
+    // Unlock next level
+    if (currentLevelIdx + 1 >= unlockedLevels) {
+      unlockedLevels = min(currentLevelIdx + 2, LEVELS.length);
+    }
+    
+    // Update star if optimal
+    if (isOptimal) {
+      starLevels[currentLevelIdx] = true;
+    }
+    saveProgress();
+
+    alert(`Level Cleared!\n${isOptimal ? '⭐ Optimal Solution Achieved!' : ''}`);
+    currentState = STATE.LEVEL_SELECT;
+  }
 }
 
 // ------------------------ Utilities ------------------------

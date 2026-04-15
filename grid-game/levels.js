@@ -146,7 +146,7 @@ let level10 = {
 
 let level11 = {
   label: "Level 11",
-  optimalMoves: 100, 
+  optimalMoves: 50, 
   playerStartingPosition: [[4, 3], [5, 3]], // [ [x, y], [x, y] ]
   map: [
     [4, 4, 4, 4, 4, 4, 4, 4, 4], // 0 = wall, 1 = floor, 2 = box, 3 = goal, 4 = void

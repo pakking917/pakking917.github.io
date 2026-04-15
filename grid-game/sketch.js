@@ -33,13 +33,10 @@ const LEVELS_PER_PAGE = 10;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
-  loadLevel(0);
-  // currentState = STATE.PLAY;
-
 }
 
 function draw() {
-  background(220);
+  background(30);
   if (currentState === STATE.MENU) {
     drawMenu();
   }
@@ -57,15 +54,19 @@ function draw() {
 
 function loadLevel(levelIndex) {
   currentState = STATE.PLAY;
-  currentLevel = levelIndex;
+  currentLevelIdx = levelIndex;
   
   let level = LEVELS[levelIndex];
+  moves = 0;
   boxes = [];
   players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
              { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
   
   rows = level.map.length;
-  cols = level.map[0].length;          
+  cols = level.map[0].length;
+  tileSize = min((windowWidth - 100) / cols, (windowHeight - 100) / rows);
+  gridOffsetX = (windowWidth - cols * tileSize) / 2;
+  gridOffsetY = (windowHeight - rows * tileSize) / 2;          
   
   mapData = [];
   for (let y = 0; y < rows; y++) {
@@ -143,7 +144,7 @@ function drawLevelSelect() {
     let hasStar = starLevels[i];
 
     drawButton(
-      isUnlocked ? `${levels[i].label} ${hasStar ? '⭐' : ''}` : "Locked", 
+      isUnlocked ? `${LEVELS[i].label} ${hasStar ? '⭐' : ''}` : "Locked", 
       x, y, 250, 60, 
       isUnlocked ? color(100, 200, 100) : color(100)
     );
@@ -209,6 +210,7 @@ function drawGame() {
   
 }
 
+// ------------------------ Game Logic ------------------------
 
 function attemptMove(dx, dy) {
   player0 = players[0];
@@ -283,6 +285,8 @@ function getPushChain (oldX, oldY, dX, dY) {
   return chain;
 }
 
+// ------------------------ Utilities ------------------------
+
 function ifBlocked(objectiveX, objectiveY) {
   return mapData[objectiveY][objectiveX] === TILE_TYPE.WALL;
 }
@@ -298,10 +302,16 @@ function getBoxAt(x, y) {
 function isOutOfBounds(x, y) {
   return y < 0 || y >= rows || x < 0 || x >= cols;
 }
+function isClicked(x, y, w, h) {
+  return mouseX > x - w/2 && mouseX < x + w/2 &&
+         mouseY > y - h/2 && mouseY < y + h/2;
+}
+
+// ------------------------ Player Inputs ------------------------
 
 function keyPressed() {
   if (key === "r" || key === "R") {
-    loadLevel(1);
+    loadLevel(currentLevelIdx);
   }
   if (key === "w" || key === "W" || keyCode === UP_ARROW) {
     attemptMove(0, -1);
@@ -316,10 +326,54 @@ function keyPressed() {
     attemptMove(1, 0);
   }
   if (keyCode === ESCAPE) {
-    currentState === STATE.MENU;
+    currentState = STATE.MENU;
   }
 }
 
+function mousePressed() {
+  if (currentState === STATE.MENU) {
+    if (isClicked(width / 2, height / 2, 200, 50)) {
+      currentState = STATE.LEVEL_SELECT;
+    }
+    if (isClicked(width / 2, height / 2 + 70, 200, 50)) {
+      currentState = STATE.HELP;
+    }
+    if (isClicked(width / 2, height / 2 + 140, 200, 50)) {
+      unlockedLevels = LEVELS.length;
+      saveProgress();
+      alert("All levels unlocked (no stars awarded)!");
+    }
+  } 
+  else if (currentState === STATE.HELP) {
+    if (isClicked(width / 2, height - 100, 200, 50)) {
+      currentState = STATE.MENU;
+    }
+  } 
+  else if (currentState === STATE.LEVEL_SELECT) {
+    let startIdx = currentPage * LEVELS_PER_PAGE;
+    let endIdx = min(startIdx + LEVELS_PER_PAGE, LEVELS.length);
+
+    // Check level clicks
+    for (let i = startIdx; i < endIdx; i++) {
+      let x = width / 2 - 150 + (i - startIdx) % 2 * 300;
+      let y = 150 + Math.floor((i - startIdx) / 2) * 80;
+      if (i < unlockedLevels && isClicked(x, y, 250, 60)) {
+        loadLevel(i);
+      }
+    }
+
+    // Pagination/Back logic
+    if (currentPage > 0 && isClicked(width / 2 - 150, height - 80, 150, 40)) {
+      currentPage--;
+    }
+    if (endIdx < LEVELS.length && isClicked(width / 2 + 150, height - 80, 150, 40)) {
+      currentPage++;
+    }
+    if (isClicked(width / 2, height - 80, 150, 40)) {
+      currentState = STATE.MENU;
+    }
+  }
+}
 
 // Local Storage
 

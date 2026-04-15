@@ -13,8 +13,8 @@ let unlockedLevels = 1;
 let starLevels = [];
 
 // levels initialization
-const levels = [level1, level2];
-let currentLevel = 0;
+const LEVELS = [level1, level2];
+let currentLevelIdx = 0;
 let mapData = [];
 let cols;
 let rows;
@@ -33,8 +33,8 @@ const LEVELS_PER_PAGE = 10;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
-  // loadLevel(0);
-  currentState = STATE.LEVEL_SELECT;
+  loadLevel(0);
+  // currentState = STATE.PLAY;
 
 }
 
@@ -133,7 +133,7 @@ function drawLevelSelect() {
   text("SELECT LEVEL", width / 2, 50);
 
   let startIdx = currentPage * LEVELS_PER_PAGE;
-  let endIdx = min(startIdx + LEVELS_PER_PAGE, levels.length);
+  let endIdx = min(startIdx + LEVELS_PER_PAGE, LEVELS.length);
 
   for (let i = startIdx; i < endIdx; i++) {
     let x = width / 2 - 150 + (i - startIdx) % 2 * 300;
@@ -153,13 +153,22 @@ function drawLevelSelect() {
   if (currentPage > 0) {
     drawButton("Prev Page", width / 2 - 150, height - 80, 150, 40);
   }
-  if (endIdx < levels.length) {
+  if (endIdx < LEVELS.length) {
     drawButton("Next Page", width / 2 + 150, height - 80, 150, 40);
   }
   drawButton("Back to Menu", width / 2, height - 80, 150, 40, color(200, 100, 100));
 }
 
 function drawGame() {
+  // Draw UI Header
+  fill(255);
+  textAlign(LEFT, TOP);
+  textSize(20);
+  text(`${LEVELS[currentLevelIdx].label} | Moves: ${moves} / ${LEVELS[currentLevelIdx].optimalMoves}`, 20, 20);
+  
+  textAlign(RIGHT, TOP);
+  text("Press 'R' to Restart | 'ESC' to Exit", width - 20, 20);
+
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       tile = mapData[y][x];
@@ -330,7 +339,7 @@ function saveProgress() {
   }));
 }
 
-function resetProgress() {
+function resetProgress() { // debugging only
   // Removes only the save data specific to this game
   localStorage.removeItem("girdGameProgress");
   unlockedLevels = 1;

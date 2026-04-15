@@ -1,19 +1,32 @@
 // Walker OOP Demo
 
-let tyler;
-let audrey;
+// let tyler;
+// let audrey;
+
+// function setup() {
+//   createCanvas(windowWidth, windowHeight);
+//   tyler = new Walker(width / 2, height / 2, "red");
+//   audrey = new Walker(random(width), random(height), "blue");
+// }
+
+// function draw() {
+//   tyler.move();
+//   audrey.move();
+//   tyler.display();
+//   audrey.display();
+// }
+
+let theWalkers = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  tyler = new Walker(width / 2, height / 2, "red");
-  audrey = new Walker(random(width), random(height), "blue");
 }
 
 function draw() {
-  tyler.move();
-  audrey.move();
-  tyler.display();
-  audrey.display();
+  for (let walker of theWalkers) {
+    walker.move();
+    walker.display();
+  }
 }
 
 class Walker {
@@ -50,4 +63,10 @@ class Walker {
       
     }
   }
+}
+
+function mousePressed() {
+  let someWalker = new Walker(mouseX, mouseY);
+  someWalker.colour = color(random(255), random(255), random(255));
+  theWalkers.push(someWalker);
 }

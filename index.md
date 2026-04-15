@@ -12,6 +12,8 @@
 - [Game of Life](09-game-of-life)
 - [Character In Grid](10-character)
 - [Walker OOP](12-walker)
+- [Fireworks OOP](13-fireworks)
+
 ## Assignments
 - [Interactive Scene](interactive-scene)
 - [Arrays and Object Notation](arrays-and-object-notation)

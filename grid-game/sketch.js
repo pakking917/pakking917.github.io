@@ -121,7 +121,15 @@ function drawHelp() {
   text("HOW TO PLAY", width / 2, height / 5);
 
   textSize(16);
-  let instructions = "";
+  let instructions = 
+    "Use WASD or Arrows to move BOTH characters simultaneously.\n\n" +
+    "Rules:\n" +
+    "- Both characters must reach the yellow goal tiles to win.\n" +
+    "- If either character touches a black Void tile, YOU DIE.\n" +
+    "- You can push brown boxes onto floors, goals, or into the void to destroy them.\n" +
+    "- If one character is blocked by a wall, the other can still move.\n" +
+    "- Characters cannot occupy the same tile.\n\n" +
+    "Try finishing the level in the optimal number of moves!";
   
   text(instructions, width / 2, height / 2);
   drawButton("Back", width / 2, height - 100, 200, 50);
@@ -169,6 +177,7 @@ function drawGame() {
   
   textAlign(RIGHT, TOP);
   text("Press 'R' to Restart | 'ESC' to Exit", width - 20, 20);
+  rectMode(CORNER);
 
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {

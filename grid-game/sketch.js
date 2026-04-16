@@ -3,16 +3,25 @@
 // 2026/3/20
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+/*
+  - I used local storage to store unlocked levels and if player achieved optimal solutions
+  - I designed a level selection UI that is expandable by simply adding new levels to the levels.js file and LEVELS array
+    by using a pagination system to select 10 levels per page
+  - I used a loop to identify and move an entire line of boxes at once instead of only one adjacent tile at a time
+  - Used ? : instead of if-else statements for conciseness in variables
+  - I imported a video to use for the educational feature for specific gameplay consequences
+*/
 
+// Game state and tile type constants
 const STATE = {MENU: 0, HELP: 1, LEVEL_SELECT: 2, PLAY: 3};
 const TILE_TYPE = {WALL: 0, FLOOR: 1, BOX: 2, GOAL: 3, VOID: 4};
 let currentState = STATE.MENU;
 
+// Progression tracking
 let unlockedLevels = 1;
 let starLevels = [];
 
-// levels initialization
+// Levels and grids initialization
 const LEVELS = [level1, level2, level3, level4, level5, level6, level7, level8, level9, level10, level11];
 let currentLevelIdx = 0;
 let mapData = [];
@@ -20,18 +29,21 @@ let cols;
 let rows;
 let boxes = [];
 let players = [];
-
-
 let moves = 0;
+
+// Rendering variables
 let tileSize;
 let gridOffsetX = 0;
 let gridOffsetY = 0;
 
+// Pagination for level select screen
 let currentPage = 0;
 const LEVELS_PER_PAGE = 10;
 
+// Educational features
 let video;
 let isEducating = false;
+const EDUCATiONAL_DURATION = 8300;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -45,6 +57,8 @@ function preload() {
 
 function draw() {
   background(30);
+
+  // State which screen to render
   if (currentState === STATE.MENU) {
     drawMenu();
   }
@@ -58,6 +72,7 @@ function draw() {
     drawGame();
   }
 
+  // Override rendering if educating
   if (isEducating) {
     image(video, 0, 0, width, height);
     return; // Stop drawing the rest of the menu while educating
@@ -72,16 +87,22 @@ function loadLevel(levelIndex) {
   let level = LEVELS[levelIndex];
   moves = 0;
   boxes = [];
+
+  // Copy starting positions to prevent modifying original level data
   players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
              { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
   
   rows = level.map.length;
   cols = level.map[0].length;
+
+  // Calc tile size and offsets
   tileSize = min((windowWidth - 100) / cols, (windowHeight - 100) / rows);
   gridOffsetX = (windowWidth - cols * tileSize) / 2;
   gridOffsetY = (windowHeight - rows * tileSize) / 2;          
   
   mapData = [];
+
+  // Parse the map array. Extract boxes into their own objects so they can move, leaving floor tiles underneath them in the static map data.
   for (let y = 0; y < rows; y++) {
     let row = [];
     for (let x = 0; x < cols; x++) {
@@ -104,6 +125,7 @@ function loadLevel(levelIndex) {
 
 // ------------------------ Rendering ------------------------
 
+// Function to draw UI buttons
 function drawButton(txt, x, y, w, h, colour = color(150)) {
   rectMode(CENTER);
   fill(colour);
@@ -154,9 +176,11 @@ function drawLevelSelect() {
   textSize(30);
   text("SELECT LEVEL", width / 2, 50);
 
+  // Calc which levels to display based on current page
   let startIdx = currentPage * LEVELS_PER_PAGE;
   let endIdx = min(startIdx + LEVELS_PER_PAGE, LEVELS.length);
 
+  // Render level buttons in a grid
   for (let i = startIdx; i < endIdx; i++) {
     let x = width / 2 - 150 + (i - startIdx) % 2 * 300;
     let y = 150 + Math.floor((i - startIdx) / 2) * 80;
@@ -171,7 +195,7 @@ function drawLevelSelect() {
     );
   }
 
-  // Pagination buttons
+  // Pagination buttons, only rendered if there are more than 10 levels
   if (currentPage > 0) {
     drawButton("Prev Page", width / 2 - 200, height - 80, 150, 40);
   }
@@ -192,6 +216,7 @@ function drawGame() {
   text("Press 'R' to Restart | 'ESC' to Exit", width - 20, 20);
   rectMode(CORNER);
 
+  // Render base map
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       tile = mapData[y][x];
@@ -218,12 +243,13 @@ function drawGame() {
     }
   }
   
+  // Render boxes
   fill(139, 69, 19);
   for (let b of boxes) {
     rect(gridOffsetX + b.x * tileSize + 2, gridOffsetY + b.y * tileSize + 2, tileSize - 4, tileSize - 4);
   }
   
-  // Draw Players
+  // Render Players
   let colors = [color(0, 255, 255), color(255, 0, 255)];  
   for (let i = 0; i < players.length; i++) {
     fill(colors[i]);
@@ -238,9 +264,11 @@ function attemptMove(dx, dy) {
   player0 = players[0];
   player1 = players[1];
   
+  // Determine what each player is trying to push
   let chain0 = getPushChain(player0.x, player0.y, dx, dy);
   let chain1 = getPushChain(player1.x, player1.y, dx, dy);
   
+  // Determine intended destination based on whether path is blocked
   let target0 = chain0.blocked ? { x: player0.x, y: player0.y } : { x: player0.x + dx, y: player0.y + dy };
   let target1 = chain1.blocked ? { x: player1.x, y: player1.y } : { x: player1.x + dx, y: player1.y + dy };
   
@@ -259,6 +287,7 @@ function attemptMove(dx, dy) {
     chain1.boxes = [];
   }
 
+  // Prevent pushing a box into the other player's intended destination
   for (let box of chain0.boxes) {
     if (box.x + dx === target1.x && box.y + dy === target1.y) {
       return;
@@ -271,6 +300,8 @@ function attemptMove(dx, dy) {
   }
   
   let moved = false;
+
+  // Execute movement and associated boxes
   if (target0.x !== player0.x || target0.y !== player0.y) {
     player0.x = target0.x; player0.y = target0.y;
     moved = true;
@@ -286,6 +317,7 @@ function attemptMove(dx, dy) {
     }
   }
   
+  // Increase move counter if successful
   if (moved) {
     moves++;
     checkPostMove();
@@ -302,6 +334,7 @@ function getPushChain (oldX, oldY, dX, dY) {
     return chain;
   }
   
+  // Check for boxes down the line until we find an empty space or a wall
   let box = getBoxAt(newX, newY);
   while (box) {
     chain.boxes.push(box);
@@ -314,7 +347,7 @@ function getPushChain (oldX, oldY, dX, dY) {
     box = getBoxAt(newX, newY);
   }
   
-  // The tile after the final box (or the player if no boxes)
+  // The tile after the final box
   if (mapData[newY][newX] === TILE_TYPE.WALL) {
     chain.blocked = true; // Blocked by wall
   }
@@ -323,7 +356,7 @@ function getPushChain (oldX, oldY, dX, dY) {
 }
 
 function checkPostMove() {
-  // Destroy boxes in the void
+  // Destroy boxes pushed into the void
   boxes = boxes.filter(b => mapData[b.y][b.x] !== TILE_TYPE.VOID);
 
   // Check if players fell in the void
@@ -331,7 +364,7 @@ function checkPostMove() {
     setTimeout(() => {
       alert("You fell into the void!");
       loadLevel(currentLevelIdx);
-    }, 50);
+    }, 50); // Timeout to allow graphics to update before alert pops up
     return;
   }
 
@@ -348,7 +381,9 @@ function checkPostMove() {
     if (isOptimal) {
       starLevels[currentLevelIdx] = true;
     }
+
     saveProgress();
+
     setTimeout(() => {
       alert(`Level Cleared!\n${isOptimal ? '⭐ Optimal Solution Achieved!' : ''}`);
       currentState = STATE.LEVEL_SELECT;
@@ -356,12 +391,13 @@ function checkPostMove() {
   }
 }
 
+// For education purposes (You fell for it didn't you)
 function education() {
   if (isEducating) {
     return;
   }
   isEducating = true;
-  video.showControls(); // Optional
+  video.showControls();
   video.play();
   video.volume(1);
   setTimeout(() => {
@@ -369,7 +405,7 @@ function education() {
     video.hide();
     isEducating = false;
     alert("All levels unlocked... but at what cost?");
-  }, 8300);
+  }, EDUCATiONAL_DURATION); // Stop video and resume game
 }
 
 // ------------------------ Utilities ------------------------
@@ -462,7 +498,7 @@ function mousePressed() {
   }
 }
 
-// Local Storage
+// ------------------------ Local Storage ------------------------
 
 function loadProgress() {
   let data = localStorage.getItem("girdGameProgress");

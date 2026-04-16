@@ -30,9 +30,17 @@ let gridOffsetY = 0;
 let currentPage = 0;
 const LEVELS_PER_PAGE = 10;
 
+let video;
+let isEducating = false;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   loadProgress();
+}
+
+function preload() {
+  video = createVideo("educational.mp4");
+  video.hide();
 }
 
 function draw() {
@@ -48,6 +56,11 @@ function draw() {
   }
   else if (currentState === STATE.PLAY) {
     drawGame();
+  }
+
+  if (isEducating) {
+    image(video, 0, 0, width, height);
+    return; // Stop drawing the rest of the menu while educating
   }
 }
 
@@ -343,6 +356,22 @@ function checkPostMove() {
   }
 }
 
+function education() {
+  if (isEducating) {
+    return;
+  }
+  isEducating = true;
+  video.showControls(); // Optional
+  video.play();
+  video.volume(1);
+  setTimeout(() => {
+    video.stop();
+    video.hide();
+    isEducating = false;
+    alert("All levels unlocked... but at what cost?");
+  }, 8300);
+}
+
 // ------------------------ Utilities ------------------------
 
 function ifBlocked(objectiveX, objectiveY) {
@@ -383,7 +412,7 @@ function keyPressed() {
   if (key === "d" || key === "D" || keyCode === RIGHT_ARROW) {
     attemptMove(1, 0);
   }
-  if (keyCode === ESCAPE) {
+  if (keyCode === ESCAPE && !isEducating) {
     currentState = STATE.MENU;
   }
 }
@@ -399,7 +428,7 @@ function mousePressed() {
     if (isClicked(width / 2, height / 2 + 140, 200, 50)) {
       unlockedLevels = LEVELS.length;
       saveProgress();
-      alert("All levels unlocked (no stars awarded)!");
+      education();
     }
   } 
   else if (currentState === STATE.HELP) {

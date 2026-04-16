@@ -60,7 +60,7 @@ function loadLevel(levelIndex) {
   moves = 0;
   boxes = [];
   players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
-    { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
+             { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
   
   rows = level.map.length;
   cols = level.map[0].length;
@@ -160,10 +160,10 @@ function drawLevelSelect() {
 
   // Pagination buttons
   if (currentPage > 0) {
-    drawButton("Prev Page", width / 2 - 150, height - 80, 150, 40);
+    drawButton("Prev Page", width / 2 - 200, height - 80, 150, 40);
   }
   if (endIdx < LEVELS.length) {
-    drawButton("Next Page", width / 2 + 150, height - 80, 150, 40);
+    drawButton("Next Page", width / 2 + 200, height - 80, 150, 40);
   }
   drawButton("Back to Menu", width / 2, height - 80, 150, 40, color(200, 100, 100));
 }
@@ -315,8 +315,10 @@ function checkPostMove() {
 
   // Check if players fell in the void
   if (mapData[players[0].y][players[0].x] === TILE_TYPE.VOID || mapData[players[1].y][players[1].x] === TILE_TYPE.VOID) {
-    alert("You fell into the void!");
-    loadLevel(currentLevelIdx);
+    setTimeout(() => {
+      alert("You fell into the void!");
+      loadLevel(currentLevelIdx);
+    }, 50);
     return;
   }
 
@@ -334,9 +336,10 @@ function checkPostMove() {
       starLevels[currentLevelIdx] = true;
     }
     saveProgress();
-
-    alert(`Level Cleared!\n${isOptimal ? '⭐ Optimal Solution Achieved!' : ''}`);
-    currentState = STATE.LEVEL_SELECT;
+    setTimeout(() => {
+      alert(`Level Cleared!\n${isOptimal ? '⭐ Optimal Solution Achieved!' : ''}`);
+      currentState = STATE.LEVEL_SELECT;
+    }, 50);
   }
 }
 

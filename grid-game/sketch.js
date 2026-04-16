@@ -60,7 +60,7 @@ function loadLevel(levelIndex) {
   moves = 0;
   boxes = [];
   players = [{ x: level.playerStartingPosition[0][0], y: level.playerStartingPosition[0][1] }, 
-             { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
+    { x: level.playerStartingPosition[1][0], y: level.playerStartingPosition[1][1] }];
   
   rows = level.map.length;
   cols = level.map[0].length;
@@ -225,37 +225,50 @@ function attemptMove(dx, dy) {
   player0 = players[0];
   player1 = players[1];
   
-  let c0 = getPushChain(player0.x, player0.y, dx, dy);
-  let c1 = getPushChain(player1.x, player1.y, dx, dy);
+  let chain0 = getPushChain(player0.x, player0.y, dx, dy);
+  let chain1 = getPushChain(player1.x, player1.y, dx, dy);
   
-  let tile0 = c0.blocked ? { x: player0.x, y: player0.y } : { x: player0.x + dx, y: player0.y + dy };
-  let tile1 = c1.blocked ? { x: player1.x, y: player1.y } : { x: player1.x + dx, y: player1.y + dy };
+  let target0 = chain0.blocked ? { x: player0.x, y: player0.y } : { x: player0.x + dx, y: player0.y + dy };
+  let target1 = chain1.blocked ? { x: player1.x, y: player1.y } : { x: player1.x + dx, y: player1.y + dy };
   
   // Rule: Players cannot attempt to occupy the same tile
-  if (tile0.x === tile1.x && tile0.y === tile1.y) {
+  if (target0.x === target1.x && target0.y === target1.y) {
     return;
   }
   
   // Handle cross-blocking (One player blocked, other moves into them)
-  if (tile0.x === player1.x && tile0.y === player1.y && c1.blocked) {
-    tile0 = { x: player0.x, y: player0.y };
+  if (target0.x === player1.x && target0.y === player1.y && chain1.blocked) {
+    target0 = { x: player0.x, y: player0.y };
+    chain0.boxes = [];
   }
-  if (tile1.x === player0.x && tile1.y === player0.y && c0.blocked) {
-    tile1 = { x: player1.x, y: player1.y };
+  if (target1.x === player0.x && target1.y === player0.y && chain0.blocked) {
+    target1 = { x: player1.x, y: player1.y };
+    chain1.boxes = [];
+  }
+
+  for (let box of chain0.boxes) {
+    if (box.x + dx === target1.x && box.y + dy === target1.y) {
+      return;
+    }
+  }
+  for (let box of chain1.boxes) {
+    if (box.x + dx === target0.x && box.y + dy === target0.y) {
+      return;
+    }
   }
   
   let moved = false;
-  if (tile0.x !== player0.x || tile0.y !== player0.y) {
-    player0.x = tile0.x; player0.y = tile0.y;
+  if (target0.x !== player0.x || target0.y !== player0.y) {
+    player0.x = target0.x; player0.y = target0.y;
     moved = true;
-    for (let box of c0.boxes) { 
+    for (let box of chain0.boxes) { 
       box.x += dx; box.y += dy; 
     }
   }
-  if (tile1.x !== player1.x || tile1.y !== player1.y) {
-    player1.x = tile1.x; player1.y = tile1.y;
+  if (target1.x !== player1.x || target1.y !== player1.y) {
+    player1.x = target1.x; player1.y = target1.y;
     moved = true;
-    for (let box of c1.boxes) { 
+    for (let box of chain1.boxes) { 
       box.x += dx; box.y += dy; 
     }
   }
@@ -292,9 +305,6 @@ function getPushChain (oldX, oldY, dX, dY) {
   if (mapData[newY][newX] === TILE_TYPE.WALL) {
     chain.blocked = true; // Blocked by wall
   }
-  // if (players.find(player => player.x === newX && player.y === newY)) {
-  //   chain.blocked = true; // Blocked by the other character
-  // }
 
   return chain;
 }

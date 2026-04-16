@@ -142,7 +142,7 @@ function drawMenu() {
   textAlign(CENTER, CENTER);
   fill(255);
   textSize(40);
-  text("Unlimited Games but No Games", width / 2, height / 3);
+  text("Sokoban't", width / 2, height / 3);
 
   drawButton("Play", width / 2, height / 2, 300, 50);
   drawButton("Help", width / 2, height / 2 + 70, 300, 50);

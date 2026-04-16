@@ -12,9 +12,16 @@ function draw() {
   background(0);
   
   for (let firework of theFireworks) {
-    firework.update();
-    firework.display();
+    if (firework.isDead()) {
+      let index = theFireworks.indexOf(firework);
+      theFireworks.splice(index, 1)
+    }
+    else {
+      firework.update();
+      firework.display();
+    }
   }
+  console.log(theFireworks.length);
 }
 
 
@@ -42,7 +49,9 @@ class Particle {
     circle(this.x, this.y, this.radius * 2);
   }
 
-
+  isDead() {
+    return this.opacity <= 0;
+  }
 }
 
 function mousePressed() {

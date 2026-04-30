@@ -62,6 +62,9 @@ class Ship {
   handleKeyPress() {
     // you only need to use this if you are doing the extra for experts...
     // if you are, you should make a bullet if the space key was pressed
+    if (keyPressed === " ") {
+      
+    }
   }
 }
 
